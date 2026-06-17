@@ -1,0 +1,76 @@
+-- Job Application Tracker: schema, enum, RLS
+-- Run this in the Supabase SQL Editor or via supabase db push
+
+-- Status enum
+CREATE TYPE application_status AS ENUM (
+  'NOT_SENT',
+  'SENT',
+  'INTERVIEW_APPROVED',
+  'IN_INTERVIEW',
+  'REJECTED',
+  'OFFER_ACCEPTED'
+);
+
+-- Main table
+CREATE TABLE public.job_applications (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id             UUID NOT NULL REFERENCES auth.users (id) ON DELETE CASCADE,
+  company_name        TEXT NOT NULL,
+  job_title           TEXT NOT NULL,
+  applied_date        DATE NOT NULL DEFAULT CURRENT_DATE,
+  job_url             TEXT,
+  country             TEXT,
+  visa_sponsorship    BOOLEAN NOT NULL DEFAULT FALSE,
+  relocation_support  BOOLEAN NOT NULL DEFAULT FALSE,
+  is_referred         BOOLEAN NOT NULL DEFAULT FALSE,
+  resume_url          TEXT,
+  cover_letter_url    TEXT,
+  salary_range        TEXT,
+  notes               TEXT,
+  status              application_status NOT NULL DEFAULT 'NOT_SENT',
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX job_applications_user_id_idx ON public.job_applications (user_id);
+CREATE INDEX job_applications_status_idx ON public.job_applications (status);
+CREATE INDEX job_applications_applied_date_idx ON public.job_applications (applied_date DESC);
+
+-- Auto-update updated_at
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER job_applications_updated_at
+  BEFORE UPDATE ON public.job_applications
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+-- Row Level Security
+ALTER TABLE public.job_applications ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own applications"
+  ON public.job_applications
+  FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own applications"
+  ON public.job_applications
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own applications"
+  ON public.job_applications
+  FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own applications"
+  ON public.job_applications
+  FOR DELETE
+  USING (auth.uid() = user_id);
