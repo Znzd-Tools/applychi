@@ -1,8 +1,7 @@
 export const APPLICATION_STATUSES = [
   "NOT_SENT",
   "SENT",
-  "INTERVIEW_APPROVED",
-  "IN_INTERVIEW",
+  "INTERVIEW",
   "REJECTED",
   "OFFER_ACCEPTED",
 ] as const;
@@ -54,8 +53,7 @@ export interface JobApplicationUpdate extends Partial<JobApplicationInsert> {
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   NOT_SENT: "Not Sent",
   SENT: "Sent",
-  INTERVIEW_APPROVED: "Interview Approved",
-  IN_INTERVIEW: "In Interview",
+  INTERVIEW: "Interview",
   REJECTED: "Rejected",
   OFFER_ACCEPTED: "Offer Accepted",
 };
@@ -72,11 +70,7 @@ export const STATUS_COLORS: Record<
     badge: "bg-blue-500/15 text-blue-400 border-blue-500/25",
     dot: "bg-blue-400",
   },
-  INTERVIEW_APPROVED: {
-    badge: "bg-amber-500/15 text-amber-400 border-amber-500/25",
-    dot: "bg-amber-400",
-  },
-  IN_INTERVIEW: {
+  INTERVIEW: {
     badge: "bg-purple-500/15 text-purple-400 border-purple-500/25",
     dot: "bg-purple-400",
   },

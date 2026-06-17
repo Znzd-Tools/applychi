@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Plus, LogOut, Briefcase } from "lucide-react";
-import type { JobApplication } from "@/features/applications/types";
+import type { ApplicationStatus, JobApplication } from "@/features/applications/types";
 import { ApplicationList } from "@/features/applications/components/application-list";
 import { ApplicationFormSheet } from "@/features/applications/components/application-form-sheet";
 import { deleteApplication } from "@/features/applications/actions";
 import { signOut } from "@/features/auth/actions";
 import { Button } from "@/components/ui/button";
-import type { ApplicationStatus } from "@/features/applications/types";
 
 interface DashboardClientProps {
   applications: JobApplication[];
@@ -16,15 +15,20 @@ interface DashboardClientProps {
 }
 
 export function DashboardClient({
-  applications,
+  applications: initialApplications,
   userEmail,
 }: DashboardClientProps) {
+  const [applications, setApplications] = useState(initialApplications);
   const [activeStatus, setActiveStatus] = useState<ApplicationStatus | "ALL">(
     "ALL"
   );
   const [formOpen, setFormOpen] = useState(false);
   const [editingApp, setEditingApp] = useState<JobApplication | undefined>();
   const [, startTransition] = useTransition();
+
+  useEffect(() => {
+    setApplications(initialApplications);
+  }, [initialApplications]);
 
   function handleAdd() {
     setEditingApp(undefined);
@@ -39,8 +43,20 @@ export function DashboardClient({
   function handleDelete(id: string) {
     if (!confirm("Delete this application?")) return;
     startTransition(async () => {
-      await deleteApplication(id);
+      const result = await deleteApplication(id);
+      if (result.success) {
+        setApplications((prev) => prev.filter((a) => a.id !== id));
+      }
     });
+  }
+
+  function handleApplicationStatusChange(
+    id: string,
+    status: ApplicationStatus
+  ) {
+    setApplications((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status } : a))
+    );
   }
 
   return (
@@ -79,12 +95,17 @@ export function DashboardClient({
           </Button>
         </div>
 
+        <p className="mb-4 hidden text-xs text-muted-foreground lg:block">
+          Drag cards between columns to update status
+        </p>
+
         <ApplicationList
           applications={applications}
           activeStatus={activeStatus}
           onStatusChange={setActiveStatus}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onApplicationStatusChange={handleApplicationStatusChange}
         />
       </main>
 
@@ -94,7 +115,6 @@ export function DashboardClient({
         application={editingApp}
       />
 
-      {/* Mobile FAB */}
       <Button
         onClick={handleAdd}
         size="icon"

@@ -5,8 +5,7 @@
 CREATE TYPE application_status AS ENUM (
   'NOT_SENT',
   'SENT',
-  'INTERVIEW_APPROVED',
-  'IN_INTERVIEW',
+  'INTERVIEW',
   'REJECTED',
   'OFFER_ACCEPTED'
 );

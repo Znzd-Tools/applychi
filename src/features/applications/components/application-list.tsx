@@ -8,6 +8,7 @@ import {
   type JobApplication,
 } from "@/features/applications/types";
 import { ApplicationCard } from "@/features/applications/components/application-card";
+import { KanbanBoard } from "@/features/applications/components/kanban-board";
 import { cn } from "@/lib/utils";
 
 interface StatusFilterProps {
@@ -65,6 +66,7 @@ interface ApplicationListProps {
   onStatusChange: (status: ApplicationStatus | "ALL") => void;
   onEdit: (application: JobApplication) => void;
   onDelete: (id: string) => void;
+  onApplicationStatusChange: (id: string, status: ApplicationStatus) => void;
 }
 
 export function ApplicationList({
@@ -73,6 +75,7 @@ export function ApplicationList({
   onStatusChange,
   onEdit,
   onDelete,
+  onApplicationStatusChange,
 }: ApplicationListProps) {
   const counts = APPLICATION_STATUSES.reduce(
     (acc, status) => {
@@ -89,7 +92,6 @@ export function ApplicationList({
 
   return (
     <div className="space-y-4">
-      {/* Mobile / tablet filter chips */}
       <div className="lg:hidden">
         <StatusFilter
           activeStatus={activeStatus}
@@ -98,45 +100,15 @@ export function ApplicationList({
         />
       </div>
 
-      {/* Desktop Kanban */}
-      <div className="hidden lg:grid lg:grid-cols-3 xl:grid-cols-6 lg:gap-3">
-        {APPLICATION_STATUSES.map((status) => {
-          const columnApps = applications.filter((a) => a.status === status);
-          return (
-            <div key={status} className="flex min-w-0 flex-col">
-              <div className="mb-3 flex items-center gap-2 px-1">
-                <span
-                  className={cn("h-2 w-2 rounded-full", STATUS_COLORS[status].dot)}
-                />
-                <h3 className="truncate text-xs font-medium text-muted-foreground">
-                  {STATUS_LABELS[status]}
-                </h3>
-                <span className="text-xs text-muted-foreground/60">
-                  {columnApps.length}
-                </span>
-              </div>
-              <div className="flex flex-col gap-2">
-                {columnApps.length === 0 ? (
-                  <div className="rounded-lg border border-dashed border-border/50 p-4 text-center text-xs text-muted-foreground">
-                    Empty
-                  </div>
-                ) : (
-                  columnApps.map((app) => (
-                    <ApplicationCard
-                      key={app.id}
-                      application={app}
-                      onEdit={onEdit}
-                      onDelete={onDelete}
-                    />
-                  ))
-                )}
-              </div>
-            </div>
-          );
-        })}
+      <div className="hidden lg:block">
+        <KanbanBoard
+          applications={applications}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onStatusChange={onApplicationStatusChange}
+        />
       </div>
 
-      {/* Mobile / filtered list */}
       <div className="grid gap-3 sm:grid-cols-2 lg:hidden">
         {filtered.length === 0 ? (
           <div className="col-span-full rounded-xl border border-dashed border-border p-12 text-center">

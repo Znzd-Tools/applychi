@@ -56,6 +56,7 @@ export function DocumentLink({ path, className }: DocumentLinkProps) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
+      onPointerDown={(e) => e.stopPropagation()}
       className={cn(
         "inline-flex items-center gap-1.5 text-sm text-primary hover:underline",
         className
