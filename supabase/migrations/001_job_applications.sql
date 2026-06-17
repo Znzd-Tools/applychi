@@ -10,6 +10,18 @@ CREATE TYPE application_status AS ENUM (
   'OFFER_ACCEPTED'
 );
 
+CREATE TYPE job_type AS ENUM (
+  'REMOTE',
+  'HYBRID',
+  'ON_SITE'
+);
+
+CREATE TYPE apply_type AS ENUM (
+  'COMPANY_WEBSITE',
+  'EASY_APPLY',
+  'JOB_PLATFORMS'
+);
+
 -- Main table
 CREATE TABLE public.job_applications (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -20,6 +32,8 @@ CREATE TABLE public.job_applications (
   job_url             TEXT,
   country             TEXT,
   city                TEXT,
+  job_type            job_type,
+  apply_type          apply_type,
   visa_sponsorship    BOOLEAN NOT NULL DEFAULT FALSE,
   relocation_support  BOOLEAN NOT NULL DEFAULT FALSE,
   is_referred         BOOLEAN NOT NULL DEFAULT FALSE,

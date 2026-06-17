@@ -8,6 +8,16 @@ export const APPLICATION_STATUSES = [
 
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number];
 
+export const JOB_TYPES = ["REMOTE", "HYBRID", "ON_SITE"] as const;
+export type JobType = (typeof JOB_TYPES)[number];
+
+export const APPLY_TYPES = [
+  "COMPANY_WEBSITE",
+  "EASY_APPLY",
+  "JOB_PLATFORMS",
+] as const;
+export type ApplyType = (typeof APPLY_TYPES)[number];
+
 export interface JobApplication {
   id: string;
   user_id: string;
@@ -17,6 +27,8 @@ export interface JobApplication {
   job_url: string | null;
   country: string | null;
   city: string | null;
+  job_type: JobType | null;
+  apply_type: ApplyType | null;
   visa_sponsorship: boolean;
   relocation_support: boolean;
   is_referred: boolean;
@@ -36,6 +48,8 @@ export interface JobApplicationInsert {
   job_url?: string | null;
   country?: string | null;
   city?: string | null;
+  job_type?: JobType | null;
+  apply_type?: ApplyType | null;
   visa_sponsorship?: boolean;
   relocation_support?: boolean;
   is_referred?: boolean;
@@ -49,6 +63,18 @@ export interface JobApplicationInsert {
 export interface JobApplicationUpdate extends Partial<JobApplicationInsert> {
   id: string;
 }
+
+export const JOB_TYPE_LABELS: Record<JobType, string> = {
+  REMOTE: "Remote",
+  HYBRID: "Hybrid",
+  ON_SITE: "On-site",
+};
+
+export const APPLY_TYPE_LABELS: Record<ApplyType, string> = {
+  COMPANY_WEBSITE: "Company Website",
+  EASY_APPLY: "Easy Apply",
+  JOB_PLATFORMS: "Job Platforms",
+};
 
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
   NOT_SENT: "Not Sent",
@@ -91,6 +117,8 @@ export const EMPTY_APPLICATION_FORM: JobApplicationInsert = {
   job_url: "",
   country: "",
   city: "",
+  job_type: null,
+  apply_type: null,
   visa_sponsorship: false,
   relocation_support: false,
   is_referred: false,
@@ -112,6 +140,8 @@ export function toFormValues(
     job_url: app.job_url ?? "",
     country: app.country ?? "",
     city: app.city ?? "",
+    job_type: app.job_type,
+    apply_type: app.apply_type,
     visa_sponsorship: app.visa_sponsorship,
     relocation_support: app.relocation_support,
     is_referred: app.is_referred,
@@ -133,6 +163,8 @@ export function toDbPayload(
     job_url: data.job_url?.trim() || null,
     country: data.country?.trim() || null,
     city: data.city?.trim() || null,
+    job_type: data.job_type ?? null,
+    apply_type: data.apply_type ?? null,
     visa_sponsorship: data.visa_sponsorship ?? false,
     relocation_support: data.relocation_support ?? false,
     is_referred: data.is_referred ?? false,

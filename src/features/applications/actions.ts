@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import {
   type JobApplication,
   type JobApplicationInsert,
+  type ApplyType,
+  type JobType,
   toDbPayload,
 } from "@/features/applications/types";
 import {
@@ -35,6 +37,13 @@ function getFileFromFormData(
   return value;
 }
 
+function parseOptionalEnum<T extends string>(
+  value: FormDataEntryValue | null
+): T | null {
+  const str = String(value ?? "").trim();
+  return str ? (str as T) : null;
+}
+
 function parseApplicationFields(formData: FormData): JobApplicationInsert {
   return {
     company_name: String(formData.get("company_name") ?? ""),
@@ -43,6 +52,8 @@ function parseApplicationFields(formData: FormData): JobApplicationInsert {
     job_url: String(formData.get("job_url") ?? ""),
     country: String(formData.get("country") ?? ""),
     city: String(formData.get("city") ?? ""),
+    job_type: parseOptionalEnum<JobType>(formData.get("job_type")),
+    apply_type: parseOptionalEnum<ApplyType>(formData.get("apply_type")),
     visa_sponsorship: formData.get("visa_sponsorship") === "true",
     relocation_support: formData.get("relocation_support") === "true",
     is_referred: formData.get("is_referred") === "true",

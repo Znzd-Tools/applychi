@@ -2,6 +2,8 @@
 
 import { MapPin, Calendar, Pencil, Trash2 } from "lucide-react";
 import {
+  APPLY_TYPE_LABELS,
+  JOB_TYPE_LABELS,
   type JobApplication,
 } from "@/features/applications/types";
 import { StatusBadge } from "@/features/applications/components/status-badge";
@@ -57,6 +59,16 @@ export function ApplicationCard({
         </div>
 
         <div className="mb-3 flex flex-wrap gap-1.5">
+          {application.job_type && (
+            <span className="rounded-md bg-violet-500/10 px-2 py-0.5 text-xs text-violet-400">
+              {JOB_TYPE_LABELS[application.job_type]}
+            </span>
+          )}
+          {application.apply_type && (
+            <span className="rounded-md bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-400">
+              {APPLY_TYPE_LABELS[application.apply_type]}
+            </span>
+          )}
           {application.visa_sponsorship && (
             <span className="rounded-md bg-blue-500/10 px-2 py-0.5 text-xs text-blue-400">
               ✈️ Visa

@@ -3,12 +3,18 @@
 import { useState, useTransition } from "react";
 import {
   APPLICATION_STATUSES,
+  APPLY_TYPES,
+  APPLY_TYPE_LABELS,
   EMPTY_APPLICATION_FORM,
+  JOB_TYPES,
+  JOB_TYPE_LABELS,
   STATUS_LABELS,
   toFormValues,
   type ApplicationStatus,
+  type ApplyType,
   type JobApplication,
   type JobApplicationInsert,
+  type JobType,
 } from "@/features/applications/types";
 import {
   createApplication,
@@ -67,6 +73,8 @@ export function ApplicationForm({
     fd.append("job_url", form.job_url ?? "");
     fd.append("country", form.country ?? "");
     fd.append("city", form.city ?? "");
+    fd.append("job_type", form.job_type ?? "");
+    fd.append("apply_type", form.apply_type ?? "");
     fd.append("salary_range", form.salary_range ?? "");
     fd.append("notes", form.notes ?? "");
     fd.append("status", form.status ?? "NOT_SENT");
@@ -153,6 +161,45 @@ export function ApplicationForm({
               {APPLICATION_STATUSES.map((status) => (
                 <SelectItem key={status} value={status}>
                   {STATUS_LABELS[status]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="job_type">Job Type</Label>
+          <Select
+            value={form.job_type ?? undefined}
+            onValueChange={(v) => updateField("job_type", v as JobType)}
+          >
+            <SelectTrigger id="job_type">
+              <SelectValue placeholder="Select job type" />
+            </SelectTrigger>
+            <SelectContent>
+              {JOB_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {JOB_TYPE_LABELS[type]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="apply_type">Apply Type</Label>
+          <Select
+            value={form.apply_type ?? undefined}
+            onValueChange={(v) => updateField("apply_type", v as ApplyType)}
+          >
+            <SelectTrigger id="apply_type">
+              <SelectValue placeholder="Select apply type" />
+            </SelectTrigger>
+            <SelectContent>
+              {APPLY_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {APPLY_TYPE_LABELS[type]}
                 </SelectItem>
               ))}
             </SelectContent>
