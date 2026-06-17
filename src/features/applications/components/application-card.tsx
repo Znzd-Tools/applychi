@@ -5,6 +5,7 @@ import {
   type JobApplication,
 } from "@/features/applications/types";
 import { StatusBadge } from "@/features/applications/components/status-badge";
+import { DocumentLink } from "@/features/applications/components/document-link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
@@ -36,10 +37,10 @@ export function ApplicationCard({
         </div>
 
         <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          {application.country && (
+          {(application.city || application.country) && (
             <span className="inline-flex items-center gap-1">
               <MapPin className="h-3 w-3" />
-              {application.country}
+              {[application.city, application.country].filter(Boolean).join(", ")}
             </span>
           )}
           <span className="inline-flex items-center gap-1">
@@ -65,6 +66,23 @@ export function ApplicationCard({
             </span>
           )}
         </div>
+
+        {(application.resume_url || application.cover_letter_url) && (
+          <div className="mb-3 flex flex-wrap gap-3">
+            {application.resume_url && (
+              <DocumentLink
+                path={application.resume_url}
+                className="text-xs"
+              />
+            )}
+            {application.cover_letter_url && (
+              <DocumentLink
+                path={application.cover_letter_url}
+                className="text-xs"
+              />
+            )}
+          </div>
+        )}
 
         <div className="flex items-center justify-end gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
           <Button

@@ -47,6 +47,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - Kanban board on desktop (6 status columns)
 - Filter chips on mobile
 - Drawer (mobile) / Dialog (desktop) for add/edit
+- Resume & cover letter file uploads (Supabase Storage, PDF/Word, 5 MB)
 - Full CRUD via Server Actions with RLS
 
 ## Project Structure

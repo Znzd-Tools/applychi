@@ -14,6 +14,7 @@ import {
   createApplication,
   updateApplication,
 } from "@/features/applications/actions";
+import { DocumentUpload } from "@/features/applications/components/document-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,6 +46,10 @@ export function ApplicationForm({
   const [form, setForm] = useState<JobApplicationInsert & { id?: string }>(
     application ? toFormValues(application) : EMPTY_APPLICATION_FORM
   );
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
+  const [clearResume, setClearResume] = useState(false);
+  const [clearCoverLetter, setClearCoverLetter] = useState(false);
 
   function updateField<K extends keyof JobApplicationInsert>(
     key: K,
@@ -53,14 +58,37 @@ export function ApplicationForm({
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function buildFormData(): FormData {
+    const fd = new FormData();
+    if (form.id) fd.append("id", form.id);
+    fd.append("company_name", form.company_name);
+    fd.append("job_title", form.job_title);
+    fd.append("applied_date", form.applied_date);
+    fd.append("job_url", form.job_url ?? "");
+    fd.append("country", form.country ?? "");
+    fd.append("city", form.city ?? "");
+    fd.append("salary_range", form.salary_range ?? "");
+    fd.append("notes", form.notes ?? "");
+    fd.append("status", form.status ?? "NOT_SENT");
+    fd.append("visa_sponsorship", String(form.visa_sponsorship ?? false));
+    fd.append("relocation_support", String(form.relocation_support ?? false));
+    fd.append("is_referred", String(form.is_referred ?? false));
+    if (resumeFile) fd.append("resume", resumeFile);
+    if (coverLetterFile) fd.append("cover_letter", coverLetterFile);
+    if (clearResume) fd.append("clear_resume", "true");
+    if (clearCoverLetter) fd.append("clear_cover_letter", "true");
+    return fd;
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
     startTransition(async () => {
-      const result = isEditing && form.id
-        ? await updateApplication({ id: form.id, ...form })
-        : await createApplication(form);
+      const fd = buildFormData();
+      const result = isEditing
+        ? await updateApplication(fd)
+        : await createApplication(fd);
 
       if (!result.success) {
         setError(result.error);
@@ -132,7 +160,7 @@ export function ApplicationForm({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="country">Country</Label>
           <Input
@@ -140,6 +168,15 @@ export function ApplicationForm({
             value={form.country ?? ""}
             onChange={(e) => updateField("country", e.target.value)}
             placeholder="United States"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="city">City</Label>
+          <Input
+            id="city"
+            value={form.city ?? ""}
+            onChange={(e) => updateField("city", e.target.value)}
+            placeholder="San Francisco"
           />
         </div>
         <div className="space-y-2">
@@ -200,24 +237,36 @@ export function ApplicationForm({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="resume_url">Resume Link</Label>
-          <Input
-            id="resume_url"
-            value={form.resume_url ?? ""}
-            onChange={(e) => updateField("resume_url", e.target.value)}
-            placeholder="URL or note"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="cover_letter_url">Cover Letter Link</Label>
-          <Input
-            id="cover_letter_url"
-            value={form.cover_letter_url ?? ""}
-            onChange={(e) => updateField("cover_letter_url", e.target.value)}
-            placeholder="URL or note"
-          />
-        </div>
+        <DocumentUpload
+          id="resume"
+          label="Resume"
+          existingPath={application?.resume_url}
+          selectedFile={resumeFile}
+          onFileChange={(file) => {
+            setResumeFile(file);
+            if (file) setClearResume(false);
+          }}
+          onClearExisting={() => {
+            setClearResume(true);
+            setResumeFile(null);
+          }}
+          clearExisting={clearResume}
+        />
+        <DocumentUpload
+          id="cover_letter"
+          label="Cover Letter"
+          existingPath={application?.cover_letter_url}
+          selectedFile={coverLetterFile}
+          onFileChange={(file) => {
+            setCoverLetterFile(file);
+            if (file) setClearCoverLetter(false);
+          }}
+          onClearExisting={() => {
+            setClearCoverLetter(true);
+            setCoverLetterFile(null);
+          }}
+          clearExisting={clearCoverLetter}
+        />
       </div>
 
       <div className="space-y-2">

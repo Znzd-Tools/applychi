@@ -17,6 +17,7 @@ export interface JobApplication {
   applied_date: string;
   job_url: string | null;
   country: string | null;
+  city: string | null;
   visa_sponsorship: boolean;
   relocation_support: boolean;
   is_referred: boolean;
@@ -35,6 +36,7 @@ export interface JobApplicationInsert {
   applied_date: string;
   job_url?: string | null;
   country?: string | null;
+  city?: string | null;
   visa_sponsorship?: boolean;
   relocation_support?: boolean;
   is_referred?: boolean;
@@ -94,6 +96,7 @@ export const EMPTY_APPLICATION_FORM: JobApplicationInsert = {
   applied_date: new Date().toISOString().split("T")[0],
   job_url: "",
   country: "",
+  city: "",
   visa_sponsorship: false,
   relocation_support: false,
   is_referred: false,
@@ -114,6 +117,7 @@ export function toFormValues(
     applied_date: app.applied_date,
     job_url: app.job_url ?? "",
     country: app.country ?? "",
+    city: app.city ?? "",
     visa_sponsorship: app.visa_sponsorship,
     relocation_support: app.relocation_support,
     is_referred: app.is_referred,
@@ -134,6 +138,7 @@ export function toDbPayload(
     applied_date: data.applied_date,
     job_url: data.job_url?.trim() || null,
     country: data.country?.trim() || null,
+    city: data.city?.trim() || null,
     visa_sponsorship: data.visa_sponsorship ?? false,
     relocation_support: data.relocation_support ?? false,
     is_referred: data.is_referred ?? false,

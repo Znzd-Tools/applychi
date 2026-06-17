@@ -20,6 +20,7 @@ CREATE TABLE public.job_applications (
   applied_date        DATE NOT NULL DEFAULT CURRENT_DATE,
   job_url             TEXT,
   country             TEXT,
+  city                TEXT,
   visa_sponsorship    BOOLEAN NOT NULL DEFAULT FALSE,
   relocation_support  BOOLEAN NOT NULL DEFAULT FALSE,
   is_referred         BOOLEAN NOT NULL DEFAULT FALSE,
@@ -74,3 +75,50 @@ CREATE POLICY "Users can delete own applications"
   ON public.job_applications
   FOR DELETE
   USING (auth.uid() = user_id);
+
+-- Storage bucket for resumes & cover letters (see 002 if applying incrementally)
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'application-documents',
+  'application-documents',
+  false,
+  5242880,
+  ARRAY['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Users can upload own application documents"
+  ON storage.objects FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    bucket_id = 'application-documents'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Users can read own application documents"
+  ON storage.objects FOR SELECT
+  TO authenticated
+  USING (
+    bucket_id = 'application-documents'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Users can update own application documents"
+  ON storage.objects FOR UPDATE
+  TO authenticated
+  USING (
+    bucket_id = 'application-documents'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  )
+  WITH CHECK (
+    bucket_id = 'application-documents'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+CREATE POLICY "Users can delete own application documents"
+  ON storage.objects FOR DELETE
+  TO authenticated
+  USING (
+    bucket_id = 'application-documents'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+  );
